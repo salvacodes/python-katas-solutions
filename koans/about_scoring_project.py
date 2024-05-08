@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from collections import Counter
 
 from runner.koan import *
 
@@ -32,9 +33,18 @@ from runner.koan import *
 #
 # Your goal is to write the score method.
 
+
 def score(dice):
-    # You need to write this method
-    pass
+    score_points = 0
+    rolls: Counter[int] = Counter(dice)
+    for number in rolls.keys():
+        while rolls.get(number, 0) >= 3:
+            score_points += 1000 if number == 1 else 100 * number
+            rolls.update({number: -3})
+    score_points += 100 * rolls.get(1, 0)
+    score_points += 50 * rolls.get(5, 0)
+    return score_points
+
 
 class AboutScoringProject(Koan):
     def test_score_of_an_empty_list_is_zero(self):
