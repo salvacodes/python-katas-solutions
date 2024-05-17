@@ -18,14 +18,29 @@
 
 from runner.koan import *
 
+
 class Proxy:
     def __init__(self, target_object):
-        # WRITE CODE HERE
+        object.__setattr__(self, "_messages", [])
+        object.__setattr__(self, "_obj", target_object)
 
-        #initialize '_obj' attribute last. Trust me on this!
-        self._obj = target_object
+    def __setattr__(self, name, value):
+        self._messages.append(name)
+        setattr(self._obj, name, value)
 
-    # WRITE CODE HERE
+    def __getattr__(self, attr):
+        self._messages.append(attr)
+        return self._obj.__getattribute__(attr)
+
+    def messages(self):
+        return self._messages
+
+    def was_called(self, attr):
+        return attr in self._messages
+
+    def number_of_times_called(self, attr):
+        return self._messages.count(attr)
+
 
 # The proxy object should pass the following Koan:
 #
@@ -58,7 +73,6 @@ class AboutProxyObjectProject(Koan):
 
         with self.assertRaises(AttributeError):
             tv.no_such_method()
-
 
     def test_proxy_reports_methods_have_been_called(self):
         tv = Proxy(Television())
@@ -96,6 +110,7 @@ class AboutProxyObjectProject(Koan):
 # The following code is to support the testing of the Proxy class.  No
 # changes should be necessary to anything below this comment.
 
+
 # Example class using in the proxy testing above.
 class Television:
     def __init__(self):
@@ -118,6 +133,7 @@ class Television:
 
     def is_on(self):
         return self._power == 'on'
+
 
 # Tests for the Television class.  All of theses tests should pass.
 class TelevisionTest(Koan):
